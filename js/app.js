@@ -1,17 +1,53 @@
 /*
-    app.js
-    application script for the JavaScript and Forms Demo
-*/
+ app.js
+ application script for the JavaScript and Forms Demo
+ */
 
 "use strict";
 
 /* onReady()
-* Called when the DOM is loaded and ready for manipulation.
-* We need to populate the class standing select based on the standings array
-* and add an event listener for the form's submit event
-* */
+ * Called when the DOM is loaded and ready for manipulation.
+ * We need to populate the class standing select based on the standings array
+ * and add an event listener for the form's submit event
+ * */
 function onReady() {
-    var standings = ['Freshman', 'Sophomore', 'Junior', 'Senior', 'Super Senior!'];
+    var standings = [
+        {
+            code: 'f',
+            displayText:'Freshman'
+        },
+        {
+            code: 'so',
+            displayText: 'Sophomore'
+        },
+        {
+            code: 'jr',
+            displayText: 'Junior'
+        },
+        {
+            code: 'sr',
+            displayText: 'Senior'
+        },
+        {
+            code: 'ss',
+            displayText: 'Super Senior!'
+        }
+    ];
+    var personForm = document.getElementById('person-form');
+    var standingsSelect = personForm.elements['standing'];
+    var idx;
+    var option;
+    var standing;
+
+    for (idx = 0; idx < standings.length; idx++) {
+        option = document.createElement('option');
+        standing = standings[idx];
+        option.value = standing.code;
+        option.innerHTML = standing.displayText;
+        standingsSelect.appendChild(option);
+    }
+
+    personForm.addEventListener('submit', onSubmit);
 
 } //onReady()
 
@@ -23,6 +59,12 @@ function onReady() {
  * */
 function onSubmit(evt) {
     var valid = validateForm(this);
+
+    if (!valid) {
+        var errMsg = document.getElementById('error-message');
+        errMsg.innerHTML = 'Please provide values for the required fields!';
+        errMsg.style.display = 'block';
+    }
 
     //if the form is invalid and the event object has a method called preventDefault,
     //call it to stop the form from being submitted to the server
@@ -43,21 +85,38 @@ function onSubmit(evt) {
 
 
 /* validateForm()
-* This function validates the form's information and returns true if the form is valid or false if the form is invalid.
-* It will also let the user know which fields are invalid.
-* parameters:
-*   form    reference to the form that needs to be validated
-* */
+ * This function validates the form's information and returns true if the form is valid or false if the form is invalid.
+ * It will also let the user know which fields are invalid.
+ * parameters:
+ *   form    reference to the form that needs to be validated
+ * */
 function validateForm(form) {
-    var requiredFields = ['firstName', 'lastName', 'standing', 'age'];
+    var requiredFields = ['firstName', 'lastName', 'standing', 'age', 'email'];
+    var idx;
+    var valid = true;
+
+    for (idx = 0; idx < requiredFields.length; idx++) {
+        valid &= validateRequiredField(form.elements[requiredFields[idx]]);
+    }
+    return valid;
 
 } //validateForm()
 
 /* validateRequiredField()
-* This function validates a field that is required. If the field does not have a value, or has only spaces,
-* it will mark the field as invalid and return false. Otherwise it will return true.
-* */
+ * This function validates a field that is required. If the field does not have a value, or has only spaces,
+ * it will mark the field as invalid and return false. Otherwise it will return true.
+ * */
 function validateRequiredField(field) {
+    var value = field.value;
+    value = value.trim();
+    var valid = value.length > 0;
+
+    if (valid) {
+        field.className = 'form-control';
+    } else {
+        field.className = 'form-control invalid-field';
+    }
+    return valid;
 
 } //validateRequiredField()
 
